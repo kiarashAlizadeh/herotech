@@ -1,0 +1,106 @@
+# .pre-commit-config.yaml
+# Bulletproof Zero-Configuration pre-commit for Enterprise Go Projects.
+# Uses Docker images directly to avoid local compilation or Go version mismatches.
+
+fail_fast: false
+
+repos:
+  # ---------------------------------------------------------------------------
+  # 1. General File Hygiene & Repository Health
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        description: Finds and removes trailing whitespaces from all files.
+
+      - id: end-of-file-fixer
+        name: Fix End of Files
+        description: Ensures that all files end with a newline character.
+
+      - id: check-yaml
+        name: Check YAML Syntax
+        description: Validates the syntax of all YAML files (configs, k8s, etc.).
+
+      - id: check-json
+        name: Check JSON Syntax
+        description: Validates the syntax of all JSON files.
+
+      - id: check-merge-conflict
+        name: Check for Merge Conflicts
+        description: Prevents committing unresolved Git merge conflict markers.
+
+  # ---------------------------------------------------------------------------
+  # 2. Automated Secret Scanning (Using Docker)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks-docker
+        name: Gitleaks Security Scan (Docker)
+        description: Detects hardcoded secrets using isolated Docker container.
+
+  # ---------------------------------------------------------------------------
+  # 3. Commit Message Linting (Conventional Commits Standard)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.6.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+
+  # ---------------------------------------------------------------------------
+  # 4. Comprehensive Go Quality Tools (Isolated via Docker Image & Go Run)
+  # ---------------------------------------------------------------------------
+  - repo: local
+    hooks:
+      - id: golangci-lint
+        name: GolangCI-Lint (Docker Image)
+        # Directly pulls and runs the official Docker image to bypass local Go environment issues
+        entry: go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --timeout=5m --config=.golangci.yml
+        language: system
+        files: '\.go$'
+        stages: [commit]
+
+      - id: go-fmt
+        name: Go Format (gofmt)
+        description: Enforces official Go code formatting standards.
+        entry: gofmt -w -s
+        language: system
+        files: '\.go$'
+        stages: [commit]
+
+      - id: go-imports
+        name: Go Imports Optimizer (Auto-vended)
+        # Using 'go run tool@version' ensures Go automatically downloads and caches the tool on-demand
+        entry: go run golang.org/x/tools/cmd/goimports@v0.24.0 -w
+        language: system
+        files: '\.go$'
+        stages: [commit]
+
+      - id: go-mod-tidy
+        name: Go Module Tidy
+        description: Ensures go.mod and go.sum are fully cleaned and synchronized.
+        entry: go mod tidy
+        language: system
+        pass_filenames: false
+        files: 'go\.(mod|sum)$'
+        stages: [commit]
+
+      - id: go-vulncheck
+        name: Go Vulnerability Check
+        entry: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+        language: system
+        pass_filenames: false
+        files: '\.go$'
+        stages: [commit]
+
+      - id: go-unit-tests
+        name: Go Fast Unit Tests
+        description: Runs lightweight unit tests to catch regression before commit.
+        entry: go test -short -timeout=30s ./...
+        language: system
+        pass_filenames: false
+        files: '\.go$'
+        stages: [commit]

@@ -1,0 +1,25 @@
+# Binaries
+main
+/tmp/
+/bin/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Go
+vendor/
+go-build/
+
+# IDE / Editor files
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Docker
+docker-compose.override.yaml
+
+# Logs
+*.log
