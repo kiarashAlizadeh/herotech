@@ -1,0 +1,132 @@
+.
+├── Makefile
+├── README.md
+├── cmd
+│   └── api
+│       └── main.go
+├── docker
+│   ├── Dockerfile.app
+│   ├── Dockerfile.migration
+│   └── docker-compose.yaml
+├── docs
+│   ├── docs.go
+│   ├── swagger.json
+│   └── swagger.yaml
+├── go.mod
+├── go.sum
+├── internal
+│   ├── app
+│   │   └── app.go
+│   ├── config
+│   │   └── config.go
+│   ├── db
+│   │   ├── db.go
+│   │   ├── dump
+│   │   │   ├── herotech_schema.sql
+│   │   │   └── schema.png
+│   │   ├── migrations
+│   │   │   ├── 20260618133414_create_guilds.down.sql
+│   │   │   ├── 20260618133414_create_guilds.up.sql
+│   │   │   ├── 20260618133430_create_items.down.sql
+│   │   │   ├── 20260618133430_create_items.up.sql
+│   │   │   ├── 20260618133443_create_auctions.down.sql
+│   │   │   ├── 20260618133443_create_auctions.up.sql
+│   │   │   ├── 20260618133451_create_bids.down.sql
+│   │   │   ├── 20260618133451_create_bids.up.sql
+│   │   │   ├── 20260618133500_create_wallet_transactions.down.sql
+│   │   │   ├── 20260618133500_create_wallet_transactions.up.sql
+│   │   │   ├── 20260618133508_create_daily_purchases.down.sql
+│   │   │   └── 20260618133508_create_daily_purchases.up.sql
+│   │   ├── query
+│   │   │   ├── auctions.sql
+│   │   │   ├── bids.sql
+│   │   │   ├── guilds.sql
+│   │   │   ├── items.sql
+│   │   │   └── wallet_transactions.sql
+│   │   └── sqlc
+│   │       ├── auctions.sql.go
+│   │       ├── bids.sql.go
+│   │       ├── db.go
+│   │       ├── guilds.sql.go
+│   │       ├── items.sql.go
+│   │       ├── models.go
+│   │       ├── querier.go
+│   │       └── wallet_transactions.sql.go
+│   ├── domain
+│   │   ├── auction.go
+│   │   ├── guild.go
+│   │   ├── item.go
+│   │   └── transaction.go
+│   ├── dto
+│   │   ├── auction_dto.go
+│   │   ├── guild_dto.go
+│   │   ├── item_dto.go
+│   │   └── pagination_dto.go
+│   ├── handler
+│   │   ├── auction_handler.go
+│   │   ├── auction_handler_test.go
+│   │   ├── guild_handler.go
+│   │   ├── guild_handler_test.go
+│   │   ├── helper.go
+│   │   ├── item_handler.go
+│   │   └── item_handler_test.go
+│   ├── middleware
+│   │   ├── cors.go
+│   │   ├── logger.go
+│   │   ├── middlewares.go
+│   │   ├── recovery.go
+│   │   └── timeout.go
+│   ├── mocks
+│   │   ├── auction_repository.go
+│   │   ├── auction_service.go
+│   │   ├── guild_repository.go
+│   │   ├── guild_service.go
+│   │   ├── item_repository.go
+│   │   └── item_service.go
+│   ├── oracle
+│   │   ├── errors.go
+│   │   ├── http_oracle.go
+│   │   ├── mock_oracle.go
+│   │   ├── oracle.go
+│   │   ├── safe_oracle.go
+│   │   └── safe_oracle_test.go
+│   ├── registry
+│   │   ├── handler_registry.go
+│   │   ├── registry.go
+│   │   ├── repository_registry.go
+│   │   └── service_registry.go
+│   ├── repository
+│   │   ├── auction_repo.go
+│   │   ├── converters.go
+│   │   ├── errors.go
+│   │   ├── guild_repo.go
+│   │   ├── item_repo.go
+│   │   └── repository_integration_test.go
+│   ├── routes
+│   │   ├── auction_routes.go
+│   │   ├── guild_routes.go
+│   │   ├── item_routes.go
+│   │   └── routes.go
+│   ├── seeder
+│   │   ├── market_seeder.go
+│   │   └── seeder.go
+│   ├── server
+│   │   └── server.go
+│   ├── service
+│   │   ├── auction_service.go
+│   │   ├── auction_service_test.go
+│   │   ├── errors.go
+│   │   ├── guild_service.go
+│   │   ├── guild_service_test.go
+│   │   ├── item_service.go
+│   │   └── item_service_test.go
+│   └── worker
+│       ├── auction_worker.go
+│       └── auction_worker_test.go
+├── pkg
+│   └── logger
+│       └── logger.go
+├── project_structure.txt
+└── sqlc.yaml
+
+28 directories, 102 files
