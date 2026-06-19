@@ -50,6 +50,19 @@ definitions:
       amount:
         type: integer
     type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.GuildInventoryResponse:
+    properties:
+      listed_items:
+        description: Items currently up for sale (available or in auction)
+        items:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse'
+        type: array
+      purchased_items:
+        description: Items successfully bought and owned by the guild
+        items:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse'
+        type: array
+    type: object
   github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse:
     properties:
       created_at:
@@ -81,6 +94,11 @@ definitions:
         type: string
       type:
         type: string
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.ListItemRequest:
+    properties:
+      list_price:
+        type: integer
     type: object
   ? github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_AuctionResponse
   : properties:
@@ -394,6 +412,44 @@ paths:
       summary: Register a new guild
       tags:
       - guilds
+  /guilds/{id}/inventory:
+    get:
+      description: Retrieves segregated asset lists highlighting both listed items
+        and purchased items
+      parameters:
+      - description: Guild UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.GuildInventoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Fetch guild inventory profile
+      tags:
+      - guilds
   /guilds/{id}/wallet:
     get:
       description: Retrieves financial metrics including total balance, reserved funds,
@@ -519,8 +575,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Mints a trading asset into the store. Common/Rare require fixed
-        list prices.
+      description: Mints a dynamic asset directly into the guild's private inventory
+        vault ('sold' state initially)
       parameters:
       - description: Owner Guild UUID
         in: header
@@ -552,7 +608,7 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: List a new item for sale
+      summary: Mint a new inventory item
       tags:
       - items
   /items/{id}:
@@ -622,6 +678,59 @@ paths:
               type: string
             type: object
       summary: Purchase item directly (Limit Order)
+      tags:
+      - items
+  /items/{id}/list:
+    post:
+      consumes:
+      - application/json
+      description: Exposes a non-legendary inventory item to the public market catalog
+        with a fixed price
+      parameters:
+      - description: Owner Guild UUID
+        in: header
+        name: X-Guild-ID
+        required: true
+        type: string
+      - description: Item UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Market listing pricing
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ListItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List an item on the marketplace
       tags:
       - items
 swagger: "2.0"

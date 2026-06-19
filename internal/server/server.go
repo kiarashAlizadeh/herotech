@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/kiarashAlizadeh/herotech/internal/config"
+	"github.com/kiarashAlizadeh/herotech/internal/middleware"
 	"github.com/kiarashAlizadeh/herotech/internal/registry"
 	"github.com/kiarashAlizadeh/herotech/internal/routes"
 
@@ -19,6 +20,9 @@ func SetupRouter(cfg *config.Config, reg *registry.Registry) *gin.Engine {
 	}
 
 	router := gin.New()
+
+	// Register global middlewares
+	middleware.SetupGlobalMiddlewares(router)
 
 	// Register all routes
 	registerRoutes(router, reg)

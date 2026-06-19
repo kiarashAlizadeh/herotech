@@ -202,6 +202,65 @@ func (_c *GuildService_GetGuild_Call) RunAndReturn(run func(context.Context, uui
 	return _c
 }
 
+// GetGuildInventory provides a mock function with given fields: ctx, id
+func (_m *GuildService) GetGuildInventory(ctx context.Context, id uuid.UUID) (*dto.GuildInventoryResponse, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGuildInventory")
+	}
+
+	var r0 *dto.GuildInventoryResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*dto.GuildInventoryResponse, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *dto.GuildInventoryResponse); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dto.GuildInventoryResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GuildService_GetGuildInventory_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetGuildInventory'
+type GuildService_GetGuildInventory_Call struct {
+	*mock.Call
+}
+
+// GetGuildInventory is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *GuildService_Expecter) GetGuildInventory(ctx interface{}, id interface{}) *GuildService_GetGuildInventory_Call {
+	return &GuildService_GetGuildInventory_Call{Call: _e.mock.On("GetGuildInventory", ctx, id)}
+}
+
+func (_c *GuildService_GetGuildInventory_Call) Run(run func(ctx context.Context, id uuid.UUID)) *GuildService_GetGuildInventory_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *GuildService_GetGuildInventory_Call) Return(_a0 *dto.GuildInventoryResponse, _a1 error) *GuildService_GetGuildInventory_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *GuildService_GetGuildInventory_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*dto.GuildInventoryResponse, error)) *GuildService_GetGuildInventory_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetWalletSummary provides a mock function with given fields: ctx, id
 func (_m *GuildService) GetWalletSummary(ctx context.Context, id uuid.UUID) (*dto.WalletSummaryResponse, error) {
 	ret := _m.Called(ctx, id)

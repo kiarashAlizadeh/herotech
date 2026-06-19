@@ -24,9 +24,9 @@ func (_m *ItemRepository) EXPECT() *ItemRepository_Expecter {
 	return &ItemRepository_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, name, itemType, ownerID, basePrice, listPrice
-func (_m *ItemRepository) Create(ctx context.Context, name string, itemType domain.ItemType, ownerID uuid.UUID, basePrice int64, listPrice int64) (*domain.Item, error) {
-	ret := _m.Called(ctx, name, itemType, ownerID, basePrice, listPrice)
+// Create provides a mock function with given fields: ctx, name, itemType, ownerID, basePrice
+func (_m *ItemRepository) Create(ctx context.Context, name string, itemType domain.ItemType, ownerID uuid.UUID, basePrice int64) (*domain.Item, error) {
+	ret := _m.Called(ctx, name, itemType, ownerID, basePrice)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -34,19 +34,19 @@ func (_m *ItemRepository) Create(ctx context.Context, name string, itemType doma
 
 	var r0 *domain.Item
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, domain.ItemType, uuid.UUID, int64, int64) (*domain.Item, error)); ok {
-		return rf(ctx, name, itemType, ownerID, basePrice, listPrice)
+	if rf, ok := ret.Get(0).(func(context.Context, string, domain.ItemType, uuid.UUID, int64) (*domain.Item, error)); ok {
+		return rf(ctx, name, itemType, ownerID, basePrice)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, domain.ItemType, uuid.UUID, int64, int64) *domain.Item); ok {
-		r0 = rf(ctx, name, itemType, ownerID, basePrice, listPrice)
+	if rf, ok := ret.Get(0).(func(context.Context, string, domain.ItemType, uuid.UUID, int64) *domain.Item); ok {
+		r0 = rf(ctx, name, itemType, ownerID, basePrice)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.Item)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, domain.ItemType, uuid.UUID, int64, int64) error); ok {
-		r1 = rf(ctx, name, itemType, ownerID, basePrice, listPrice)
+	if rf, ok := ret.Get(1).(func(context.Context, string, domain.ItemType, uuid.UUID, int64) error); ok {
+		r1 = rf(ctx, name, itemType, ownerID, basePrice)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -65,14 +65,13 @@ type ItemRepository_Create_Call struct {
 //   - itemType domain.ItemType
 //   - ownerID uuid.UUID
 //   - basePrice int64
-//   - listPrice int64
-func (_e *ItemRepository_Expecter) Create(ctx interface{}, name interface{}, itemType interface{}, ownerID interface{}, basePrice interface{}, listPrice interface{}) *ItemRepository_Create_Call {
-	return &ItemRepository_Create_Call{Call: _e.mock.On("Create", ctx, name, itemType, ownerID, basePrice, listPrice)}
+func (_e *ItemRepository_Expecter) Create(ctx interface{}, name interface{}, itemType interface{}, ownerID interface{}, basePrice interface{}) *ItemRepository_Create_Call {
+	return &ItemRepository_Create_Call{Call: _e.mock.On("Create", ctx, name, itemType, ownerID, basePrice)}
 }
 
-func (_c *ItemRepository_Create_Call) Run(run func(ctx context.Context, name string, itemType domain.ItemType, ownerID uuid.UUID, basePrice int64, listPrice int64)) *ItemRepository_Create_Call {
+func (_c *ItemRepository_Create_Call) Run(run func(ctx context.Context, name string, itemType domain.ItemType, ownerID uuid.UUID, basePrice int64)) *ItemRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(domain.ItemType), args[3].(uuid.UUID), args[4].(int64), args[5].(int64))
+		run(args[0].(context.Context), args[1].(string), args[2].(domain.ItemType), args[3].(uuid.UUID), args[4].(int64))
 	})
 	return _c
 }
@@ -82,7 +81,7 @@ func (_c *ItemRepository_Create_Call) Return(_a0 *domain.Item, _a1 error) *ItemR
 	return _c
 }
 
-func (_c *ItemRepository_Create_Call) RunAndReturn(run func(context.Context, string, domain.ItemType, uuid.UUID, int64, int64) (*domain.Item, error)) *ItemRepository_Create_Call {
+func (_c *ItemRepository_Create_Call) RunAndReturn(run func(context.Context, string, domain.ItemType, uuid.UUID, int64) (*domain.Item, error)) *ItemRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -142,6 +141,65 @@ func (_c *ItemRepository_GetByID_Call) Return(_a0 *domain.Item, _a1 error) *Item
 }
 
 func (_c *ItemRepository_GetByID_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*domain.Item, error)) *ItemRepository_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByOwner provides a mock function with given fields: ctx, ownerID
+func (_m *ItemRepository) GetByOwner(ctx context.Context, ownerID uuid.UUID) ([]*domain.Item, error) {
+	ret := _m.Called(ctx, ownerID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByOwner")
+	}
+
+	var r0 []*domain.Item
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*domain.Item, error)); ok {
+		return rf(ctx, ownerID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*domain.Item); ok {
+		r0 = rf(ctx, ownerID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*domain.Item)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, ownerID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ItemRepository_GetByOwner_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByOwner'
+type ItemRepository_GetByOwner_Call struct {
+	*mock.Call
+}
+
+// GetByOwner is a helper method to define mock.On call
+//   - ctx context.Context
+//   - ownerID uuid.UUID
+func (_e *ItemRepository_Expecter) GetByOwner(ctx interface{}, ownerID interface{}) *ItemRepository_GetByOwner_Call {
+	return &ItemRepository_GetByOwner_Call{Call: _e.mock.On("GetByOwner", ctx, ownerID)}
+}
+
+func (_c *ItemRepository_GetByOwner_Call) Run(run func(ctx context.Context, ownerID uuid.UUID)) *ItemRepository_GetByOwner_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *ItemRepository_GetByOwner_Call) Return(_a0 []*domain.Item, _a1 error) *ItemRepository_GetByOwner_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ItemRepository_GetByOwner_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*domain.Item, error)) *ItemRepository_GetByOwner_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -210,6 +268,54 @@ func (_c *ItemRepository_ListAvailable_Call) Return(_a0 []*domain.Item, _a1 int6
 }
 
 func (_c *ItemRepository_ListAvailable_Call) RunAndReturn(run func(context.Context, *domain.ItemType, int32, int32) ([]*domain.Item, int64, error)) *ItemRepository_ListAvailable_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListForSale provides a mock function with given fields: ctx, itemID, listPrice
+func (_m *ItemRepository) ListForSale(ctx context.Context, itemID uuid.UUID, listPrice int64) error {
+	ret := _m.Called(ctx, itemID, listPrice)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListForSale")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int64) error); ok {
+		r0 = rf(ctx, itemID, listPrice)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ItemRepository_ListForSale_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListForSale'
+type ItemRepository_ListForSale_Call struct {
+	*mock.Call
+}
+
+// ListForSale is a helper method to define mock.On call
+//   - ctx context.Context
+//   - itemID uuid.UUID
+//   - listPrice int64
+func (_e *ItemRepository_Expecter) ListForSale(ctx interface{}, itemID interface{}, listPrice interface{}) *ItemRepository_ListForSale_Call {
+	return &ItemRepository_ListForSale_Call{Call: _e.mock.On("ListForSale", ctx, itemID, listPrice)}
+}
+
+func (_c *ItemRepository_ListForSale_Call) Run(run func(ctx context.Context, itemID uuid.UUID, listPrice int64)) *ItemRepository_ListForSale_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(int64))
+	})
+	return _c
+}
+
+func (_c *ItemRepository_ListForSale_Call) Return(_a0 error) *ItemRepository_ListForSale_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ItemRepository_ListForSale_Call) RunAndReturn(run func(context.Context, uuid.UUID, int64) error) *ItemRepository_ListForSale_Call {
 	_c.Call.Return(run)
 	return _c
 }

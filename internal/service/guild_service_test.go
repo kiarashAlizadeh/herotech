@@ -68,11 +68,12 @@ func TestGuildService_CreateGuild(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := mocks.NewGuildRepository(t)
+			itemRepo := mocks.NewItemRepository(t)
 			if tt.setupMock != nil {
 				tt.setupMock(repo)
 			}
 
-			res, err := NewGuildService(repo).CreateGuild(context.Background(), tt.req)
+			res, err := NewGuildService(repo, itemRepo).CreateGuild(context.Background(), tt.req)
 
 			if tt.wantErr != nil {
 				require.Error(t, err)
@@ -126,11 +127,12 @@ func TestGuildService_GetGuild(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := mocks.NewGuildRepository(t)
+			itemRepo := mocks.NewItemRepository(t)
 			if tt.setupMock != nil {
 				tt.setupMock(repo)
 			}
 
-			res, err := NewGuildService(repo).GetGuild(context.Background(), tt.id)
+			res, err := NewGuildService(repo, itemRepo).GetGuild(context.Background(), tt.id)
 
 			if tt.wantErr != nil {
 				require.Error(t, err)
@@ -183,11 +185,12 @@ func TestGuildService_DepositGold(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := mocks.NewGuildRepository(t)
+			itemRepo := mocks.NewItemRepository(t)
 			if tt.setupMock != nil {
 				tt.setupMock(repo)
 			}
 
-			res, err := NewGuildService(repo).DepositGold(context.Background(), tt.id, dto.DepositGoldRequest{Amount: 500})
+			res, err := NewGuildService(repo, itemRepo).DepositGold(context.Background(), tt.id, dto.DepositGoldRequest{Amount: 500})
 
 			if tt.wantErr != nil {
 				require.Error(t, err)
@@ -241,11 +244,12 @@ func TestGuildService_GetWalletSummary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repo := mocks.NewGuildRepository(t)
+			itemRepo := mocks.NewItemRepository(t)
 			if tt.setupMock != nil {
 				tt.setupMock(repo)
 			}
 
-			res, err := NewGuildService(repo).GetWalletSummary(context.Background(), tt.id)
+			res, err := NewGuildService(repo, itemRepo).GetWalletSummary(context.Background(), tt.id)
 
 			if tt.wantErr != nil {
 				require.Error(t, err)

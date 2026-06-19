@@ -72,6 +72,66 @@ func (_c *ItemService_BuyItemDirectly_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// CreateItem provides a mock function with given fields: ctx, ownerID, req
+func (_m *ItemService) CreateItem(ctx context.Context, ownerID uuid.UUID, req dto.CreateItemRequest) (*dto.ItemResponse, error) {
+	ret := _m.Called(ctx, ownerID, req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateItem")
+	}
+
+	var r0 *dto.ItemResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, dto.CreateItemRequest) (*dto.ItemResponse, error)); ok {
+		return rf(ctx, ownerID, req)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, dto.CreateItemRequest) *dto.ItemResponse); ok {
+		r0 = rf(ctx, ownerID, req)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dto.ItemResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, dto.CreateItemRequest) error); ok {
+		r1 = rf(ctx, ownerID, req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ItemService_CreateItem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateItem'
+type ItemService_CreateItem_Call struct {
+	*mock.Call
+}
+
+// CreateItem is a helper method to define mock.On call
+//   - ctx context.Context
+//   - ownerID uuid.UUID
+//   - req dto.CreateItemRequest
+func (_e *ItemService_Expecter) CreateItem(ctx interface{}, ownerID interface{}, req interface{}) *ItemService_CreateItem_Call {
+	return &ItemService_CreateItem_Call{Call: _e.mock.On("CreateItem", ctx, ownerID, req)}
+}
+
+func (_c *ItemService_CreateItem_Call) Run(run func(ctx context.Context, ownerID uuid.UUID, req dto.CreateItemRequest)) *ItemService_CreateItem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(dto.CreateItemRequest))
+	})
+	return _c
+}
+
+func (_c *ItemService_CreateItem_Call) Return(_a0 *dto.ItemResponse, _a1 error) *ItemService_CreateItem_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ItemService_CreateItem_Call) RunAndReturn(run func(context.Context, uuid.UUID, dto.CreateItemRequest) (*dto.ItemResponse, error)) *ItemService_CreateItem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetItem provides a mock function with given fields: ctx, id
 func (_m *ItemService) GetItem(ctx context.Context, id uuid.UUID) (*dto.ItemResponse, error) {
 	ret := _m.Called(ctx, id)
@@ -191,62 +251,51 @@ func (_c *ItemService_ListAvailable_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
-// ListItem provides a mock function with given fields: ctx, ownerID, req
-func (_m *ItemService) ListItem(ctx context.Context, ownerID uuid.UUID, req dto.CreateItemRequest) (*dto.ItemResponse, error) {
-	ret := _m.Called(ctx, ownerID, req)
+// ListNonLegendaryItem provides a mock function with given fields: ctx, itemID, ownerID, listPrice
+func (_m *ItemService) ListNonLegendaryItem(ctx context.Context, itemID uuid.UUID, ownerID uuid.UUID, listPrice int64) error {
+	ret := _m.Called(ctx, itemID, ownerID, listPrice)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ListItem")
+		panic("no return value specified for ListNonLegendaryItem")
 	}
 
-	var r0 *dto.ItemResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, dto.CreateItemRequest) (*dto.ItemResponse, error)); ok {
-		return rf(ctx, ownerID, req)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, dto.CreateItemRequest) *dto.ItemResponse); ok {
-		r0 = rf(ctx, ownerID, req)
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, int64) error); ok {
+		r0 = rf(ctx, itemID, ownerID, listPrice)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*dto.ItemResponse)
-		}
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, dto.CreateItemRequest) error); ok {
-		r1 = rf(ctx, ownerID, req)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// ItemService_ListItem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListItem'
-type ItemService_ListItem_Call struct {
+// ItemService_ListNonLegendaryItem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListNonLegendaryItem'
+type ItemService_ListNonLegendaryItem_Call struct {
 	*mock.Call
 }
 
-// ListItem is a helper method to define mock.On call
+// ListNonLegendaryItem is a helper method to define mock.On call
 //   - ctx context.Context
+//   - itemID uuid.UUID
 //   - ownerID uuid.UUID
-//   - req dto.CreateItemRequest
-func (_e *ItemService_Expecter) ListItem(ctx interface{}, ownerID interface{}, req interface{}) *ItemService_ListItem_Call {
-	return &ItemService_ListItem_Call{Call: _e.mock.On("ListItem", ctx, ownerID, req)}
+//   - listPrice int64
+func (_e *ItemService_Expecter) ListNonLegendaryItem(ctx interface{}, itemID interface{}, ownerID interface{}, listPrice interface{}) *ItemService_ListNonLegendaryItem_Call {
+	return &ItemService_ListNonLegendaryItem_Call{Call: _e.mock.On("ListNonLegendaryItem", ctx, itemID, ownerID, listPrice)}
 }
 
-func (_c *ItemService_ListItem_Call) Run(run func(ctx context.Context, ownerID uuid.UUID, req dto.CreateItemRequest)) *ItemService_ListItem_Call {
+func (_c *ItemService_ListNonLegendaryItem_Call) Run(run func(ctx context.Context, itemID uuid.UUID, ownerID uuid.UUID, listPrice int64)) *ItemService_ListNonLegendaryItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(dto.CreateItemRequest))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(uuid.UUID), args[3].(int64))
 	})
 	return _c
 }
 
-func (_c *ItemService_ListItem_Call) Return(_a0 *dto.ItemResponse, _a1 error) *ItemService_ListItem_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *ItemService_ListNonLegendaryItem_Call) Return(_a0 error) *ItemService_ListNonLegendaryItem_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *ItemService_ListItem_Call) RunAndReturn(run func(context.Context, uuid.UUID, dto.CreateItemRequest) (*dto.ItemResponse, error)) *ItemService_ListItem_Call {
+func (_c *ItemService_ListNonLegendaryItem_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, int64) error) *ItemService_ListNonLegendaryItem_Call {
 	_c.Call.Return(run)
 	return _c
 }

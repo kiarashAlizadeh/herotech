@@ -22,3 +22,8 @@ type ItemResponse struct {
 	ListPrice *int64    `json:"list_price,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+// ListItemRequest defines the explicit schema for exposing an inventory asset.
+type ListItemRequest struct {
+	ListPrice int64 `json:"list_price"`
+}

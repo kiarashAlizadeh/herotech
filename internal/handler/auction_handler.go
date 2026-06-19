@@ -63,6 +63,7 @@ func (h *AuctionHandler) StartAuction(c *gin.Context) {
 			errors.Is(err, service.ErrInvalidDuration) ||
 			errors.Is(err, service.ErrInvalidEntityIDs) ||
 			errors.Is(err, service.ErrAssociatedItemNotFound) ||
+			errors.Is(err, service.ErrItemAlreadyInAuction) ||
 			errors.Is(err, service.ErrNonLegendaryAuction) ||
 			errors.Is(err, service.ErrNotItemOwner) ||
 			errors.Is(err, service.ErrMaxActiveAuctions) {
@@ -182,6 +183,7 @@ func (h *AuctionHandler) PlaceBid(c *gin.Context) {
 			return
 		}
 		if errors.Is(err, service.ErrBidTooLow) ||
+			errors.Is(err, service.ErrAlreadyHighestBidder) ||
 			errors.Is(err, service.ErrInvalidBidAmount) ||
 			errors.Is(err, service.ErrInvalidAuctionID) ||
 			errors.Is(err, service.ErrInvalidGuildID) ||

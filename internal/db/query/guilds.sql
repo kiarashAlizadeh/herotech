@@ -37,7 +37,7 @@ RETURNING *;
 SELECT
     g.gold_balance                                          AS total_balance,
     COALESCE(SUM(b.amount) FILTER (WHERE b.is_active), 0)::BIGINT  AS reserved_amount,
-    g.gold_balance - COALESCE(SUM(b.amount) FILTER (WHERE b.is_active), 0)::BIGINT AS available_balance
+    (g.gold_balance - COALESCE(SUM(b.amount) FILTER (WHERE b.is_active), 0)::BIGINT)::BIGINT AS available_balance
 FROM guilds g
 LEFT JOIN bids b ON b.bidder_id = g.id
 WHERE g.id = $1
@@ -45,7 +45,7 @@ GROUP BY g.id, g.gold_balance;
 
 -- name: GetDailySpent :one
 -- Fetch today's total accumulated spending to enforce the daily anti-monopoly quota
-SELECT COALESCE(total_spent, 0)::BIGINT
+SELECT COALESCE(SUM(total_spent), 0)::BIGINT
 FROM daily_purchases
 WHERE guild_id = $1 AND date = CURRENT_DATE;
 

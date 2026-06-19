@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -62,6 +63,9 @@ func (s *auctionService) StartAuction(ctx context.Context, sellerID uuid.UUID, r
 	if err != nil {
 		if errors.Is(err, repository.ErrMaxActiveAuctions) {
 			return nil, ErrMaxActiveAuctions
+		}
+		if errors.Is(err, repository.ErrAuctionAlreadyExists) {
+			return nil, ErrItemAlreadyInAuction
 		}
 		return nil, fmt.Errorf("failed to create auction via repository: %w", err)
 	}
@@ -174,6 +178,9 @@ func (s *auctionService) PlaceBid(ctx context.Context, auctionID, bidderID uuid.
 		}
 		if errors.Is(err, repository.ErrInsufficientBalance) {
 			return ErrInsufficientBalance
+		}
+		if errors.Is(err, repository.ErrAlreadyHighestBidder) || strings.Contains(err.Error(), "holding the leading position") {
+			return ErrAlreadyHighestBidder
 		}
 		return fmt.Errorf("failed to complete bid placement transaction: %w", err)
 	}

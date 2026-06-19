@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -57,6 +58,9 @@ func (r *auctionRepository) Create(ctx context.Context, itemID, sellerID uuid.UU
 		EndsAt:     TimeToPgTimestamptz(endsAt),
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "idx_one_active_auction_per_item") || strings.Contains(err.Error(), "23505") {
+			return nil, ErrAuctionAlreadyExists
+		}
 		return nil, fmt.Errorf("failed to create auction row: %w", err)
 	}
 
@@ -133,8 +137,13 @@ func (r *auctionRepository) PlaceBidTransaction(ctx context.Context, auctionID, 
 		return ErrBidOnOwnAuction
 	}
 
+	// Prevent the current top runner from bidding against themselves
+	if auction.WinnerID.Valid && uuid.UUID(auction.WinnerID.Bytes) == bidderID {
+		return ErrAlreadyHighestBidder
+	}
+
 	// Lock the bidder guild row immediately to prevent overlapping financial commitments
-	_, err = qtx.GetGuildByIDForUpdate(ctx, bidderID)
+	buyerGuild, err := qtx.GetGuildByIDForUpdate(ctx, bidderID)
 	if err != nil {
 		return fmt.Errorf("failed to lock bidder guild: %w", err)
 	}
@@ -146,6 +155,19 @@ func (r *auctionRepository) PlaceBidTransaction(ctx context.Context, auctionID, 
 	}
 	if int64(wallet.AvailableBalance) < amount {
 		return ErrInsufficientBalance
+	}
+
+	// Enforce the daily spending quota safety rails for the incoming bid
+	dailySpent, err := qtx.GetDailySpent(ctx, bidderID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			dailySpent = 0
+		} else {
+			return fmt.Errorf("failed to calculate daily spent quota: %w", err)
+		}
+	}
+	if dailySpent+amount > buyerGuild.DailyLimit {
+		return ErrDailyLimitExceeded // Reusing the sentinel error from service/repository layer
 	}
 
 	// Release trapped gold from the previous top bidder right away
@@ -162,6 +184,11 @@ func (r *auctionRepository) PlaceBidTransaction(ctx context.Context, auctionID, 
 				Type:        sqlc.TransactionTypeRelease,
 				Amount:      prevBid.Amount,
 				ReferenceID: UUIDToPgUUID(auctionID),
+			})
+			// Release the outbid guild's daily quota allocation instantly
+			_, _ = qtx.UpsertDailyPurchase(ctx, sqlc.UpsertDailyPurchaseParams{
+				GuildID:    prevWinner,
+				TotalSpent: -prevBid.Amount,
 			})
 		}
 	}
@@ -196,6 +223,15 @@ func (r *auctionRepository) PlaceBidTransaction(ctx context.Context, auctionID, 
 	})
 	if err != nil {
 		return fmt.Errorf("failed to log wallet reservation: %w", err)
+	}
+
+	// Dedicate the quota portion right away to freeze the guild's capacity
+	_, err = qtx.UpsertDailyPurchase(ctx, sqlc.UpsertDailyPurchaseParams{
+		GuildID:    bidderID,
+		TotalSpent: amount,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update daily purchase tracking ledger: %w", err)
 	}
 
 	return tx.Commit(ctx)
@@ -243,6 +279,15 @@ func (r *auctionRepository) CancelBidTransaction(ctx context.Context, auctionID,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to log wallet release: %w", err)
+	}
+
+	// Refund the daily limit quota allowance upon explicit bid cancellation
+	_, err = qtx.UpsertDailyPurchase(ctx, sqlc.UpsertDailyPurchaseParams{
+		GuildID:    bidderID,
+		TotalSpent: -activeBid.Amount,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to rollback daily quota allocation: %w", err)
 	}
 
 	return tx.Commit(ctx)

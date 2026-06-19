@@ -49,7 +49,8 @@ func (h *GuildHandler) CreateGuild(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, service.ErrEmptyGuildName) ||
 			errors.Is(err, service.ErrInvalidGuildNameLength) ||
-			errors.Is(err, service.ErrInvalidDailyLimit) {
+			errors.Is(err, service.ErrInvalidDailyLimit) ||
+			errors.Is(err, service.ErrGuildNameExists) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -85,6 +86,43 @@ func (h *GuildHandler) ListGuilds(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch guilds"})
 		return
 	}
+	c.JSON(http.StatusOK, res)
+}
+
+// GetGuildInventory godoc
+// @Summary      Fetch guild inventory profile
+// @Description  Retrieves segregated asset lists highlighting both listed items and purchased items
+// @Tags         guilds
+// @Produce      json
+// @Param        id   path      string  true  "Guild UUID"
+// @Success      200  {object}  dto.GuildInventoryResponse
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /guilds/{id}/inventory [get]
+func (h *GuildHandler) GetGuildInventory(c *gin.Context) {
+	idStr := c.Param("id")
+	guildID, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid guild identity formatting"})
+		return
+	}
+
+	res, err := h.guildService.GetGuildInventory(c.Request.Context(), guildID)
+	if err != nil {
+		if errors.Is(err, service.ErrGuildNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		if errors.Is(err, service.ErrInvalidGuildID) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to resolve inventory pipeline"})
+		return
+	}
+
 	c.JSON(http.StatusOK, res)
 }
 

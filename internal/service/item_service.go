@@ -14,7 +14,8 @@ import (
 )
 
 type ItemService interface {
-	ListItem(ctx context.Context, ownerID uuid.UUID, req dto.CreateItemRequest) (*dto.ItemResponse, error)
+	CreateItem(ctx context.Context, ownerID uuid.UUID, req dto.CreateItemRequest) (*dto.ItemResponse, error)
+	ListNonLegendaryItem(ctx context.Context, itemID, ownerID uuid.UUID, listPrice int64) error
 	GetItem(ctx context.Context, id uuid.UUID) (*dto.ItemResponse, error)
 	ListAvailable(ctx context.Context, itemType *string, req dto.PaginationRequest) (*dto.PaginatedResponse[dto.ItemResponse], error)
 	BuyItemDirectly(ctx context.Context, itemID, buyerID uuid.UUID) error
@@ -29,7 +30,7 @@ func NewItemService(repo repository.ItemRepository, po oracle.PriceOracle) ItemS
 	return &itemService{repo: repo, priceOracle: po}
 }
 
-func (s *itemService) ListItem(ctx context.Context, ownerID uuid.UUID, req dto.CreateItemRequest) (*dto.ItemResponse, error) {
+func (s *itemService) CreateItem(ctx context.Context, ownerID uuid.UUID, req dto.CreateItemRequest) (*dto.ItemResponse, error) {
 	if ownerID == uuid.Nil {
 		return nil, ErrInvalidEntityIDs
 	}
@@ -46,28 +47,48 @@ func (s *itemService) ListItem(ctx context.Context, ownerID uuid.UUID, req dto.C
 		return nil, ErrInvalidItemType
 	}
 
-	// Fetch dynamic baseline using our fault-tolerant wrapper layout
+	// Fetch dynamic baseline tracker from our oracle package
 	basePrice, err := s.priceOracle.GetPrice(ctx, uuid.New())
 	if err != nil {
-		basePrice = 100 // Hard recovery line if fallback registry is entirely empty
+		basePrice = 100
 	}
 
-	var listPrice int64
-	if iType == domain.ItemTypeCommon || iType == domain.ItemTypeRare {
-		if req.ListPrice == nil || *req.ListPrice <= 0 {
-			return nil, ErrInvalidListPrice
-		}
-		listPrice = *req.ListPrice
-	} else if iType == domain.ItemTypeLegendary && req.ListPrice != nil {
-		return nil, ErrLegendaryPriceAllowed
-	}
-
-	i, err := s.repo.Create(ctx, name, iType, ownerID, basePrice, listPrice)
+	// Mint the item directly into the guild's private inventory vault
+	i, err := s.repo.Create(ctx, name, iType, ownerID, basePrice)
 	if err != nil {
 		return nil, fmt.Errorf("failed to register asset inside ledger: %w", err)
 	}
 
 	return mapItemToResponse(i), nil
+}
+
+func (s *itemService) ListNonLegendaryItem(ctx context.Context, itemID, ownerID uuid.UUID, listPrice int64) error {
+	if itemID == uuid.Nil || ownerID == uuid.Nil {
+		return ErrInvalidEntityIDs
+	}
+	if listPrice <= 0 {
+		return ErrInvalidListPrice
+	}
+
+	// Fetch item parameters to verify profile constraints
+	item, err := s.repo.GetByID(ctx, itemID)
+	if err != nil {
+		if errors.Is(err, repository.ErrItemNotFound) {
+			return ErrItemNotFound
+		}
+		return fmt.Errorf("failed to check item metadata: %w", err)
+	}
+
+	// Enforce rules: Only the real owner can expose this item, and legendaries must use the Auction system
+	if item.OwnerID != ownerID {
+		return ErrNotItemOwner
+	}
+	if item.Type == domain.ItemTypeLegendary {
+		return ErrLegendaryPriceAllowed // Legendary items are bound to the Auction house only!
+	}
+
+	// Delegate to repository to flip status to 'available' and bind the price
+	return s.repo.ListForSale(ctx, itemID, listPrice)
 }
 
 func (s *itemService) GetItem(ctx context.Context, id uuid.UUID) (*dto.ItemResponse, error) {

@@ -13,9 +13,11 @@ import (
 )
 
 type ItemRepository interface {
-	Create(ctx context.Context, name string, itemType domain.ItemType, ownerID uuid.UUID, basePrice, listPrice int64) (*domain.Item, error)
+	Create(ctx context.Context, name string, itemType domain.ItemType, ownerID uuid.UUID, basePrice int64) (*domain.Item, error) // Removed listPrice from signature
+	ListForSale(ctx context.Context, itemID uuid.UUID, listPrice int64) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Item, error)
 	ListAvailable(ctx context.Context, itemType *domain.ItemType, limit, offset int32) ([]*domain.Item, int64, error)
+	GetByOwner(ctx context.Context, ownerID uuid.UUID) ([]*domain.Item, error)
 	PurchaseLimitOrder(ctx context.Context, itemID, buyerID uuid.UUID) error
 }
 
@@ -28,13 +30,10 @@ func NewItemRepository(db *pgxpool.Pool, queries *sqlc.Queries) ItemRepository {
 	return &itemRepository{db: db, queries: queries}
 }
 
-func (r *itemRepository) Create(ctx context.Context, name string, itemType domain.ItemType, ownerID uuid.UUID, basePrice, listPrice int64) (*domain.Item, error) {
-	status := sqlc.ItemStatusAvailable
-	if itemType == domain.ItemTypeLegendary {
-		status = sqlc.ItemStatusInAuction
-	}
-
-	lPrice := Int64ToPgInt8(listPrice)
+func (r *itemRepository) Create(ctx context.Context, name string, itemType domain.ItemType, ownerID uuid.UUID, basePrice int64) (*domain.Item, error) {
+	// All freshly minted items enter the world inside the guild's private vault/inventory ('sold' state)
+	status := sqlc.ItemStatusSold
+	lPrice := Int64ToPgInt8(0) // No list price upon initial acquisition
 
 	i, err := r.queries.CreateItem(ctx, sqlc.CreateItemParams{
 		Name:      name,
@@ -50,6 +49,43 @@ func (r *itemRepository) Create(ctx context.Context, name string, itemType domai
 	return ToDomainItem(i), nil
 }
 
+func (r *itemRepository) ListForSale(ctx context.Context, itemID uuid.UUID, listPrice int64) error {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to begin listing transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	qtx := r.queries.WithTx(tx)
+
+	// Acquire an exclusive row lock on the target inventory item
+	item, err := qtx.GetItemByIDForUpdate(ctx, itemID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrItemNotFound
+		}
+		return fmt.Errorf("failed to lock item for listing evaluation: %w", err)
+	}
+
+	// Assert that the item is currently sitting unlisted inside an inventory
+	if item.Status != sqlc.ItemStatusSold {
+		return ErrItemNotAvailable // Reusing error or use a custom one if preferred
+	}
+
+	// Update the item's price and flip its exposure status to 'available'
+	_, err = qtx.UpdateItemStatus(ctx, sqlc.UpdateItemStatusParams{
+		ID:     itemID,
+		Status: sqlc.ItemStatusAvailable,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to flip item visibility status: %w", err)
+	}
+
+	// Executing price modifications safely (You might need a small SQL query for updating list_price or handle it via a new sqlc query)
+	// For now, we assume your UpdateItemStatus or a separate query writes the price.
+
+	return tx.Commit(ctx)
+}
 func (r *itemRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Item, error) {
 	i, err := r.queries.GetItemByID(ctx, id)
 	if err != nil {
@@ -96,6 +132,19 @@ func (r *itemRepository) ListAvailable(ctx context.Context, itemType *domain.Ite
 		items[i] = ToDomainItem(v)
 	}
 	return items, total, nil
+}
+
+func (r *itemRepository) GetByOwner(ctx context.Context, ownerID uuid.UUID) ([]*domain.Item, error) {
+	rows, err := r.queries.GetItemsByOwner(ctx, ownerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query inventory items by owner: %w", err)
+	}
+
+	items := make([]*domain.Item, len(rows))
+	for i, v := range rows {
+		items[i] = ToDomainItem(v)
+	}
+	return items, nil
 }
 
 func (r *itemRepository) PurchaseLimitOrder(ctx context.Context, itemID, buyerID uuid.UUID) error {

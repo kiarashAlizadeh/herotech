@@ -4,6 +4,7 @@ import "errors"
 
 var (
 	ErrAuctionNotFound        = errors.New("target live auction could not be found")
+	ErrItemAlreadyInAuction   = errors.New("this item is already listed in another active auction")
 	ErrBidTooLow              = errors.New("bid must be at least 5% higher than the current standing position")
 	ErrAuctionNotActive       = errors.New("auction is no longer accepting bids")
 	ErrBidOnOwnAuction        = errors.New("cannot bid on your own auction item")
@@ -29,10 +30,12 @@ var (
 	ErrInvalidEntityIDs       = errors.New("provided transaction entity ids are invalid")
 	ErrInvalidGuildNameLength = errors.New("guild name must be between 2 and 100 characters")
 	ErrInvalidDailyLimit      = errors.New("guild daily limit must be greater than zero")
+	ErrGuildNameExists        = errors.New("guild name already exists")
 	ErrInvalidItemNameLength  = errors.New("item name must be between 2 and 100 characters")
 	ErrInvalidItemType        = errors.New("item type must be one of: common, rare, legendary")
 	ErrInvalidStartPrice      = errors.New("auction start price must be greater than zero")
 	ErrInvalidDuration        = errors.New("auction duration must be greater than zero")
 	ErrInvalidBidAmount       = errors.New("bid amount must be greater than zero")
+	ErrAlreadyHighestBidder   = errors.New("you are already holding the leading position in this auction")
 	ErrInvalidDepositAmount   = errors.New("deposit amount must be greater than zero")
 )

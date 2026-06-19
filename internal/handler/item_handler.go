@@ -18,9 +18,9 @@ func NewItemHandler(s service.ItemService) *ItemHandler {
 	return &ItemHandler{itemService: s}
 }
 
-// ListItem godoc
-// @Summary      List a new item for sale
-// @Description  Mints a trading asset into the store. Common/Rare require fixed list prices.
+// CreateItem godoc
+// @Summary      Mint a new inventory item
+// @Description  Mints a dynamic asset directly into the guild's private inventory vault ('sold' state initially)
 // @Tags         items
 // @Accept       json
 // @Produce      json
@@ -30,7 +30,7 @@ func NewItemHandler(s service.ItemService) *ItemHandler {
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /items [post]
-func (h *ItemHandler) ListItem(c *gin.Context) {
+func (h *ItemHandler) CreateItem(c *gin.Context) {
 	ownerStr := c.GetHeader("X-Guild-ID")
 	ownerID, err := uuid.Parse(ownerStr)
 	if err != nil {
@@ -53,22 +53,83 @@ func (h *ItemHandler) ListItem(c *gin.Context) {
 		return
 	}
 
-	res, err := h.itemService.ListItem(c.Request.Context(), ownerID, req)
+	res, err := h.itemService.CreateItem(c.Request.Context(), ownerID, req)
 	if err != nil {
 		if errors.Is(err, service.ErrBlankItemName) ||
 			errors.Is(err, service.ErrInvalidItemNameLength) ||
-			errors.Is(err, service.ErrInvalidItemType) ||
+			errors.Is(err, service.ErrInvalidEntityIDs) ||
+			errors.Is(err, service.ErrInvalidItemType) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to mint asset into guild inventory"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, res)
+}
+
+// ListForSale godoc
+// @Summary      List an item on the marketplace
+// @Description  Exposes a non-legendary inventory item to the public market catalog with a fixed price
+// @Tags         items
+// @Accept       json
+// @Produce      json
+// @Param        X-Guild-ID  header    string  true  "Owner Guild UUID"
+// @Param        id          path      string  true  "Item UUID"
+// @Param        request     body      dto.ListItemRequest  true  "Market listing pricing" // 🛠️ FIX: Now points to dto package
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /items/{id}/list [post]
+func (h *ItemHandler) ListForSale(c *gin.Context) {
+	ownerStr := c.GetHeader("X-Guild-ID")
+	ownerID, err := uuid.Parse(ownerStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing or malformed X-Guild-ID context header"})
+		return
+	}
+
+	idStr := c.Param("id")
+	itemID, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid item identifier format"})
+		return
+	}
+
+	var req dto.ListItemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.ListPrice <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "list_price must be greater than zero"})
+		return
+	}
+
+	err = h.itemService.ListNonLegendaryItem(c.Request.Context(), itemID, ownerID, req.ListPrice)
+	if err != nil {
+		if errors.Is(err, service.ErrItemNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		if errors.Is(err, service.ErrInvalidEntityIDs) ||
 			errors.Is(err, service.ErrInvalidListPrice) ||
+			errors.Is(err, service.ErrNotItemOwner) ||
+			errors.Is(err, service.ErrItemNotAvailable) ||
 			errors.Is(err, service.ErrLegendaryPriceAllowed) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list asset into market catalog"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list asset into public marketplace"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, res)
+	c.JSON(http.StatusOK, gin.H{"message": "item successfully exposed to the marketplace storefront"})
 }
 
 // GetItem godoc
@@ -76,7 +137,7 @@ func (h *ItemHandler) ListItem(c *gin.Context) {
 // @Description  Retrieves individual asset evaluation logs by its primary identifier key
 // @Tags         items
 // @Produce      json
-// @Param        id   path      string  true  "Item UUID"
+// @Param        id    path      string  true  "Item UUID"
 // @Success      200  {object}  dto.ItemResponse
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string

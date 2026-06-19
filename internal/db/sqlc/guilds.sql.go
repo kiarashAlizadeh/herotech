@@ -49,7 +49,7 @@ func (q *Queries) CreateGuild(ctx context.Context, arg CreateGuildParams) (Guild
 }
 
 const getDailySpent = `-- name: GetDailySpent :one
-SELECT COALESCE(total_spent, 0)::BIGINT
+SELECT COALESCE(SUM(total_spent), 0)::BIGINT
 FROM daily_purchases
 WHERE guild_id = $1 AND date = CURRENT_DATE
 `
@@ -106,7 +106,7 @@ const getWalletSummary = `-- name: GetWalletSummary :one
 SELECT
     g.gold_balance                                          AS total_balance,
     COALESCE(SUM(b.amount) FILTER (WHERE b.is_active), 0)::BIGINT  AS reserved_amount,
-    g.gold_balance - COALESCE(SUM(b.amount) FILTER (WHERE b.is_active), 0)::BIGINT AS available_balance
+    (g.gold_balance - COALESCE(SUM(b.amount) FILTER (WHERE b.is_active), 0)::BIGINT)::BIGINT AS available_balance
 FROM guilds g
 LEFT JOIN bids b ON b.bidder_id = g.id
 WHERE g.id = $1
@@ -116,7 +116,7 @@ GROUP BY g.id, g.gold_balance
 type GetWalletSummaryRow struct {
 	TotalBalance     int64
 	ReservedAmount   int64
-	AvailableBalance int32
+	AvailableBalance int64
 }
 
 // Calculate a complete financial snapshot for a guild, isolating active bid reservations

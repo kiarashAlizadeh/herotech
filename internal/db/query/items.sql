@@ -37,6 +37,12 @@ SELECT COUNT(*) FROM items
 WHERE status = 'available'
   AND type = $1;
 
+-- name: GetItemsByOwner :many
+-- Retrieve all items owned by a specific guild to populate their inventory profile
+SELECT * FROM items
+WHERE owner_id = $1
+ORDER BY created_at DESC;
+
 -- name: UpdateItemStatus :one
 UPDATE items
 SET

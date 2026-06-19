@@ -28,3 +28,8 @@ type WalletSummaryResponse struct {
 	ReservedAmount   int64 `json:"reserved_amount"`
 	AvailableBalance int64 `json:"available_balance"`
 }
+
+type GuildInventoryResponse struct {
+	ListedItems    []ItemResponse `json:"listed_items"`    // Items currently up for sale (available or in auction)
+	PurchasedItems []ItemResponse `json:"purchased_items"` // Items successfully bought and owned by the guild
+}

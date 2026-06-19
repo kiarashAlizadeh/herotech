@@ -10,6 +10,7 @@ func RegisterGuildRoutes(pathV1 *gin.RouterGroup, guildHandler *handler.GuildHan
 	{
 		guilds.POST("", guildHandler.CreateGuild)
 		guilds.GET("", guildHandler.ListGuilds)
+		guilds.GET("/:id/inventory", guildHandler.GetGuildInventory)
 		guilds.GET("/:id/wallet", guildHandler.GetWalletSummary)
 		guilds.POST("/:id/wallet/deposit", guildHandler.DepositGold)
 	}

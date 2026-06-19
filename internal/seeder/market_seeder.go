@@ -39,13 +39,25 @@ func (s *Seeder) SeedMarketplaceData(ctx context.Context) error {
 
 	// 3. Seed Fixed Price Items (Common & Rare)
 	commonItemPrice := int64(150)
-	_, err = repos.ItemRepository.Create(ctx, "Iron Broadsword", domain.ItemTypeCommon, slayerGuild.ID, 100, commonItemPrice)
+	// Mint common item into the guild's private inventory vault first using 5 arguments
+	commonItem, err := repos.ItemRepository.Create(ctx, "Iron Broadsword", domain.ItemTypeCommon, slayerGuild.ID, 100)
+	if err != nil {
+		return err
+	}
+	// Expose the freshly minted common asset to the public marketplace catalog explicitly
+	err = repos.ItemRepository.ListForSale(ctx, commonItem.ID, commonItemPrice)
 	if err != nil {
 		return err
 	}
 
 	rareItemPrice := int64(1200)
-	_, err = repos.ItemRepository.Create(ctx, "Mana Infused Chestplate", domain.ItemTypeRare, shadowGuild.ID, 800, rareItemPrice)
+	// Mint rare item into the guild's private inventory vault using 5 arguments
+	rareItem, err := repos.ItemRepository.Create(ctx, "Mana Infused Chestplate", domain.ItemTypeRare, shadowGuild.ID, 800)
+	if err != nil {
+		return err
+	}
+	// Expose the rare asset to the public marketplace catalog explicitly
+	err = repos.ItemRepository.ListForSale(ctx, rareItem.ID, rareItemPrice)
 	if err != nil {
 		return err
 	}
@@ -53,8 +65,8 @@ func (s *Seeder) SeedMarketplaceData(ctx context.Context) error {
 	log.Println("✅ Seeded initial Common and Rare inventory assets.")
 
 	// 4. Seed Legendary Item & Instantly Open an Auction Board for it
-	// Legendary assets holding NO direct list price (0)
-	legendaryItem, err := repos.ItemRepository.Create(ctx, "Vorynthax Frostmaw Staff", domain.ItemTypeLegendary, slayerGuild.ID, 5000, 0)
+	// legendary asset directly into the private inventory vault using 5 arguments (removed trailing 0)
+	legendaryItem, err := repos.ItemRepository.Create(ctx, "Vorynthax Frostmaw Staff", domain.ItemTypeLegendary, slayerGuild.ID, 5000)
 	if err != nil {
 		return err
 	}

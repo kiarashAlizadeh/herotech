@@ -43,6 +43,8 @@ type Querier interface {
 	GetItemByID(ctx context.Context, id uuid.UUID) (Item, error)
 	// Lock the asset to prevent double-selling or concurrent auction setups on the same item
 	GetItemByIDForUpdate(ctx context.Context, id uuid.UUID) (Item, error)
+	// Retrieve all items owned by a specific guild to populate their inventory profile
+	GetItemsByOwner(ctx context.Context, ownerID uuid.UUID) ([]Item, error)
 	// Calculate a complete financial snapshot for a guild, isolating active bid reservations
 	GetWalletSummary(ctx context.Context, id uuid.UUID) (GetWalletSummaryRow, error)
 	// Fetch all live auctions with embedded core item metadata for the storefront

@@ -100,14 +100,14 @@ func TestItemHandler_BuyItemDirectly(t *testing.T) {
 	}
 }
 
-func TestItemHandler_ListItem_BodyValidation(t *testing.T) {
+func TestItemHandler_CreateItem_BodyValidation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	svc := mocks.NewItemService(t)
-	svc.On("ListItem", mock.Anything, mock.Anything, mock.Anything).Return(nil, service.ErrInvalidItemType).Once()
+	svc.On("CreateItem", mock.Anything, mock.Anything, mock.Anything).Return(nil, service.ErrInvalidItemType).Once()
 
 	router := gin.New()
-	router.POST("/items", NewItemHandler(svc).ListItem)
+	router.POST("/items", NewItemHandler(svc).CreateItem)
 
 	req := httptest.NewRequest(http.MethodPost, "/items", strings.NewReader(`{"name":"A","type":"invalid"}`))
 	req.Header.Set("Content-Type", "application/json")
@@ -119,7 +119,7 @@ func TestItemHandler_ListItem_BodyValidation(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
-func TestItemHandler_ListItem_Success(t *testing.T) {
+func TestItemHandler_CreateItem_Success(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	ownerID := uuid.New()
@@ -128,7 +128,7 @@ func TestItemHandler_ListItem_Success(t *testing.T) {
 	expectedReq := dto.CreateItemRequest{Name: "Potion", Type: "common", ListPrice: &price}
 
 	svc := mocks.NewItemService(t)
-	svc.On("ListItem", mock.Anything, ownerID, expectedReq).Return(&dto.ItemResponse{
+	svc.On("CreateItem", mock.Anything, ownerID, expectedReq).Return(&dto.ItemResponse{
 		ID:        uuid.New(),
 		Name:      "Potion",
 		Type:      "common",
@@ -138,7 +138,7 @@ func TestItemHandler_ListItem_Success(t *testing.T) {
 	}, nil).Once()
 
 	router := gin.New()
-	router.POST("/items", NewItemHandler(svc).ListItem)
+	router.POST("/items", NewItemHandler(svc).CreateItem)
 
 	req := httptest.NewRequest(http.MethodPost, "/items", strings.NewReader(reqBody))
 	req.Header.Set("Content-Type", "application/json")

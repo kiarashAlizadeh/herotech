@@ -23,7 +23,7 @@ func (r *Registry) GetServices() *Services {
 		mockOracle := oracle.NewMockPriceOracle()
 		safeOracle := oracle.NewSafePriceOracle(mockOracle)
 
-		r.services.GuildService = service.NewGuildService(repos.GuildRepository)
+		r.services.GuildService = service.NewGuildService(repos.GuildRepository, repos.ItemRepository)
 
 		// Inject the wrapped, resilient price oracle into the Item trading core
 		r.services.ItemService = service.NewItemService(repos.ItemRepository, safeOracle)

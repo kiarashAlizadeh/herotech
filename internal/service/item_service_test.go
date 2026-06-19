@@ -25,7 +25,7 @@ func (s stubPriceOracle) GetPrice(context.Context, uuid.UUID) (int64, error) {
 	return s.price, s.err
 }
 
-func TestItemService_ListItem(t *testing.T) {
+func TestItemService_CreateItem(t *testing.T) {
 	ownerID := uuid.New()
 	listPrice := int64(250)
 
@@ -44,30 +44,24 @@ func TestItemService_ListItem(t *testing.T) {
 			wantErr: ErrBlankItemName,
 		},
 		{
-			name:    "requires list price for common item",
-			req:     dto.CreateItemRequest{Name: "Potion", Type: "common"},
+			name:    "rejects invalid item type", 
+			req:     dto.CreateItemRequest{Name: "Excalibur", Type: "epic"},
 			oracle:  stubPriceOracle{price: 1000},
-			wantErr: ErrInvalidListPrice,
-		},
-		{
-			name:    "rejects fixed price for legendary item",
-			req:     dto.CreateItemRequest{Name: "Dragon Crown", Type: "legendary", ListPrice: &listPrice},
-			oracle:  stubPriceOracle{price: 1000},
-			wantErr: ErrLegendaryPriceAllowed,
+			wantErr: ErrInvalidItemType,
 		},
 		{
 			name:   "trims item name before create",
 			req:    dto.CreateItemRequest{Name: "  Sword  ", Type: "rare", ListPrice: &listPrice},
 			oracle: stubPriceOracle{price: 900},
 			setupMock: func(repo *mocks.ItemRepository) {
-				repo.On("Create", mock.Anything, "Sword", domain.ItemTypeRare, ownerID, int64(900), listPrice).Return(&domain.Item{
+
+				repo.On("Create", mock.Anything, "Sword", domain.ItemTypeRare, ownerID, int64(900)).Return(&domain.Item{
 					ID:        uuid.New(),
 					Name:      "Sword",
 					Type:      domain.ItemTypeRare,
-					Status:    domain.ItemStatusAvailable,
+					Status:    domain.ItemStatusSold, // Entered game as sold/inventory state
 					OwnerID:   ownerID,
 					BasePrice: 900,
-					ListPrice: &listPrice,
 					CreatedAt: time.Now(),
 				}, nil).Once()
 			},
@@ -78,14 +72,14 @@ func TestItemService_ListItem(t *testing.T) {
 			req:    dto.CreateItemRequest{Name: "Sword", Type: "rare", ListPrice: &listPrice},
 			oracle: stubPriceOracle{price: 900},
 			setupMock: func(repo *mocks.ItemRepository) {
-				repo.On("Create", mock.Anything, "Sword", domain.ItemTypeRare, ownerID, int64(900), listPrice).Return(&domain.Item{
+
+				repo.On("Create", mock.Anything, "Sword", domain.ItemTypeRare, ownerID, int64(900)).Return(&domain.Item{
 					ID:        uuid.New(),
 					Name:      "Sword",
 					Type:      domain.ItemTypeRare,
-					Status:    domain.ItemStatusAvailable,
+					Status:    domain.ItemStatusSold,
 					OwnerID:   ownerID,
 					BasePrice: 900,
-					ListPrice: &listPrice,
 					CreatedAt: time.Now(),
 				}, nil).Once()
 			},
@@ -96,14 +90,14 @@ func TestItemService_ListItem(t *testing.T) {
 			req:    dto.CreateItemRequest{Name: "Axe", Type: "common", ListPrice: &listPrice},
 			oracle: stubPriceOracle{err: errors.New("oracle unavailable")},
 			setupMock: func(repo *mocks.ItemRepository) {
-				repo.On("Create", mock.Anything, "Axe", domain.ItemTypeCommon, ownerID, int64(100), listPrice).Return(&domain.Item{
+
+				repo.On("Create", mock.Anything, "Axe", domain.ItemTypeCommon, ownerID, int64(100)).Return(&domain.Item{
 					ID:        uuid.New(),
 					Name:      "Axe",
 					Type:      domain.ItemTypeCommon,
-					Status:    domain.ItemStatusAvailable,
+					Status:    domain.ItemStatusSold,
 					OwnerID:   ownerID,
 					BasePrice: 100,
-					ListPrice: &listPrice,
 					CreatedAt: time.Now(),
 				}, nil).Once()
 			},
@@ -114,7 +108,8 @@ func TestItemService_ListItem(t *testing.T) {
 			req:    dto.CreateItemRequest{Name: "Shield", Type: "rare", ListPrice: &listPrice},
 			oracle: stubPriceOracle{price: 750},
 			setupMock: func(repo *mocks.ItemRepository) {
-				repo.On("Create", mock.Anything, "Shield", domain.ItemTypeRare, ownerID, int64(750), listPrice).Return(nil, errors.New("insert failed")).Once()
+
+				repo.On("Create", mock.Anything, "Shield", domain.ItemTypeRare, ownerID, int64(750)).Return(nil, errors.New("insert failed")).Once()
 			},
 			wantErr: errors.New("insert failed"),
 		},
@@ -127,11 +122,11 @@ func TestItemService_ListItem(t *testing.T) {
 				tt.setupMock(repo)
 			}
 
-			res, err := NewItemService(repo, tt.oracle).ListItem(context.Background(), ownerID, tt.req)
+			res, err := NewItemService(repo, tt.oracle).CreateItem(context.Background(), ownerID, tt.req)
 
 			if tt.wantErr != nil {
 				require.Error(t, err)
-				if errors.Is(tt.wantErr, ErrBlankItemName) || errors.Is(tt.wantErr, ErrInvalidListPrice) || errors.Is(tt.wantErr, ErrLegendaryPriceAllowed) {
+				if errors.Is(tt.wantErr, ErrBlankItemName) || errors.Is(tt.wantErr, ErrInvalidItemType) {
 					assert.ErrorIs(t, err, tt.wantErr)
 				}
 				return

@@ -123,6 +123,43 @@ func (q *Queries) GetItemByIDForUpdate(ctx context.Context, id uuid.UUID) (Item,
 	return i, err
 }
 
+const getItemsByOwner = `-- name: GetItemsByOwner :many
+SELECT id, name, type, status, owner_id, base_price, list_price, created_at, updated_at FROM items
+WHERE owner_id = $1
+ORDER BY created_at DESC
+`
+
+// Retrieve all items owned by a specific guild to populate their inventory profile
+func (q *Queries) GetItemsByOwner(ctx context.Context, ownerID uuid.UUID) ([]Item, error) {
+	rows, err := q.db.Query(ctx, getItemsByOwner, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Item{}
+	for rows.Next() {
+		var i Item
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Type,
+			&i.Status,
+			&i.OwnerID,
+			&i.BasePrice,
+			&i.ListPrice,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAvailableItems = `-- name: ListAvailableItems :many
 SELECT id, name, type, status, owner_id, base_price, list_price, created_at, updated_at FROM items
 WHERE status = 'available'

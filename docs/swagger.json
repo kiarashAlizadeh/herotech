@@ -381,6 +381,62 @@
                 }
             }
         },
+        "/guilds/{id}/inventory": {
+            "get": {
+                "description": "Retrieves segregated asset lists highlighting both listed items and purchased items",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guilds"
+                ],
+                "summary": "Fetch guild inventory profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Guild UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.GuildInventoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/guilds/{id}/wallet": {
             "get": {
                 "description": "Retrieves financial metrics including total balance, reserved funds, and liquid available gold",
@@ -563,7 +619,7 @@
                 }
             },
             "post": {
-                "description": "Mints a trading asset into the store. Common/Rare require fixed list prices.",
+                "description": "Mints a dynamic asset directly into the guild's private inventory vault ('sold' state initially)",
                 "consumes": [
                     "application/json"
                 ],
@@ -573,7 +629,7 @@
                 "tags": [
                     "items"
                 ],
-                "summary": "List a new item for sale",
+                "summary": "Mint a new inventory item",
                 "parameters": [
                     {
                         "type": "string",
@@ -720,6 +776,84 @@
                     }
                 }
             }
+        },
+        "/items/{id}/list": {
+            "post": {
+                "description": "Exposes a non-legendary inventory item to the public market catalog with a fixed price",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "List an item on the marketplace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Owner Guild UUID",
+                        "name": "X-Guild-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Market listing pricing",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ListItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -800,6 +934,25 @@
                 }
             }
         },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.GuildInventoryResponse": {
+            "type": "object",
+            "properties": {
+                "listed_items": {
+                    "description": "Items currently up for sale (available or in auction)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse"
+                    }
+                },
+                "purchased_items": {
+                    "description": "Items successfully bought and owned by the guild",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse"
+                    }
+                }
+            }
+        },
         "github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse": {
             "type": "object",
             "properties": {
@@ -846,6 +999,14 @@
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.ListItemRequest": {
+            "type": "object",
+            "properties": {
+                "list_price": {
+                    "type": "integer"
                 }
             }
         },
