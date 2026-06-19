@@ -1,0 +1,627 @@
+basePath: /api/v1
+definitions:
+  github_com_kiarashAlizadeh_herotech_internal_dto.AuctionResponse:
+    properties:
+      ends_at:
+        type: string
+      highest_bid:
+        type: integer
+      id:
+        type: string
+      item_id:
+        type: string
+      seller_id:
+        type: string
+      start_price:
+        type: integer
+      status:
+        type: string
+      winner_id:
+        type: string
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.CreateAuctionRequest:
+    properties:
+      duration:
+        description: Duration in hours
+        type: integer
+      item_id:
+        type: string
+      start_price:
+        type: integer
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.CreateGuildRequest:
+    properties:
+      daily_limit:
+        type: integer
+      name:
+        type: string
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.CreateItemRequest:
+    properties:
+      list_price:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.DepositGoldRequest:
+    properties:
+      amount:
+        type: integer
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse:
+    properties:
+      created_at:
+        type: string
+      daily_limit:
+        type: integer
+      gold_balance:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse:
+    properties:
+      base_price:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: string
+      list_price:
+        type: integer
+      name:
+        type: string
+      owner_id:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  ? github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_AuctionResponse
+  : properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.AuctionResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginationMeta'
+    type: object
+  ? github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_GuildResponse
+  : properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginationMeta'
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_ItemResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginationMeta'
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.PaginationMeta:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_items:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.PlaceBidRequest:
+    properties:
+      amount:
+        type: integer
+    type: object
+  github_com_kiarashAlizadeh_herotech_internal_dto.WalletSummaryResponse:
+    properties:
+      available_balance:
+        type: integer
+      reserved_amount:
+        type: integer
+      total_balance:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@Aethoria.com
+    name: API Support
+  description: Core infrastructure backend for managing Guild Wallets, Item Trading,
+    and Legendary Auctions.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: DRAGON MARKET PLACE API
+  version: "1.0"
+paths:
+  /auctions:
+    get:
+      description: Streams current dynamic storefront auction indices filtering active
+        runs
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_AuctionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List active marketplace auctions
+      tags:
+      - auctions
+    post:
+      consumes:
+      - application/json
+      description: Commences a public competitive auction profile cycle sequence restricted
+        exclusively to legendary assets
+      parameters:
+      - description: Seller Guild UUID
+        in: header
+        name: X-Guild-ID
+        required: true
+        type: string
+      - description: Auction listing duration configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.CreateAuctionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.AuctionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Launch a Legendary item auction
+      tags:
+      - auctions
+  /auctions/{id}:
+    get:
+      description: Retrieves current auction configurations, ends timetables, and
+        leading winner parameters
+      parameters:
+      - description: Auction UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.AuctionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get auction board details
+      tags:
+      - auctions
+  /auctions/{id}/bid:
+    delete:
+      description: Cancels bid stakes and unlocks reserved allocations instantly if
+        bidder isn't holding the pole position
+      parameters:
+      - description: Bidder Guild UUID
+        in: header
+        name: X-Guild-ID
+        required: true
+        type: string
+      - description: Auction UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Retract a non-leading bid position
+      tags:
+      - auctions
+    post:
+      consumes:
+      - application/json
+      description: Evaluates and appends a bid reservation position. Requires at least
+        5% gain increment steps.
+      parameters:
+      - description: Bidder Guild UUID
+        in: header
+        name: X-Guild-ID
+        required: true
+        type: string
+      - description: Auction UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Bid financial allocation criteria
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PlaceBidRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Submit a new competitive bid
+      tags:
+      - auctions
+  /guilds:
+    get:
+      description: Retrieves all guild profiles present in the ledger system
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_GuildResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all registered guilds
+      tags:
+      - guilds
+    post:
+      consumes:
+      - application/json
+      description: Creates a new guild profile with a defined daily spending limit
+      parameters:
+      - description: Guild payload specs
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.CreateGuildRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new guild
+      tags:
+      - guilds
+  /guilds/{id}/wallet:
+    get:
+      description: Retrieves financial metrics including total balance, reserved funds,
+        and liquid available gold
+      parameters:
+      - description: Guild UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.WalletSummaryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Fetch guild wallet summary
+      tags:
+      - guilds
+  /guilds/{id}/wallet/deposit:
+    post:
+      consumes:
+      - application/json
+      description: Increments a specific guild's gold balance ledger sequence
+      parameters:
+      - description: Guild UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Deposit amount parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.DepositGoldRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Deposit gold into guild wallet
+      tags:
+      - guilds
+  /items:
+    get:
+      description: Fetches currently unpurchased inventory orders with optional filtering
+        by class tier type
+      parameters:
+      - description: Filter by type (common, rare, legendary)
+        in: query
+        name: type
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_ItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all available catalog items
+      tags:
+      - items
+    post:
+      consumes:
+      - application/json
+      description: Mints a trading asset into the store. Common/Rare require fixed
+        list prices.
+      parameters:
+      - description: Owner Guild UUID
+        in: header
+        name: X-Guild-ID
+        required: true
+        type: string
+      - description: Item metadata specs
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.CreateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List a new item for sale
+      tags:
+      - items
+  /items/{id}:
+    get:
+      description: Retrieves individual asset evaluation logs by its primary identifier
+        key
+      parameters:
+      - description: Item UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get item profile details
+      tags:
+      - items
+  /items/{id}/buy:
+    post:
+      description: Triggers instant direct transaction fulfillment loop logic for
+        Common or Rare asset categories
+      parameters:
+      - description: Buyer Guild UUID
+        in: header
+        name: X-Guild-ID
+        required: true
+        type: string
+      - description: Item UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Purchase item directly (Limit Order)
+      tags:
+      - items
+swagger: "2.0"

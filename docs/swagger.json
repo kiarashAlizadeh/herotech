@@ -1,0 +1,934 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Core infrastructure backend for managing Guild Wallets, Item Trading, and Legendary Auctions.",
+        "title": "DRAGON MARKET PLACE API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "support@Aethoria.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/auctions": {
+            "get": {
+                "description": "Streams current dynamic storefront auction indices filtering active runs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auctions"
+                ],
+                "summary": "List active marketplace auctions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_AuctionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Commences a public competitive auction profile cycle sequence restricted exclusively to legendary assets",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auctions"
+                ],
+                "summary": "Launch a Legendary item auction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seller Guild UUID",
+                        "name": "X-Guild-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Auction listing duration configuration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.CreateAuctionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.AuctionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auctions/{id}": {
+            "get": {
+                "description": "Retrieves current auction configurations, ends timetables, and leading winner parameters",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auctions"
+                ],
+                "summary": "Get auction board details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auction UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.AuctionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auctions/{id}/bid": {
+            "post": {
+                "description": "Evaluates and appends a bid reservation position. Requires at least 5% gain increment steps.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auctions"
+                ],
+                "summary": "Submit a new competitive bid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bidder Guild UUID",
+                        "name": "X-Guild-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auction UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Bid financial allocation criteria",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PlaceBidRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Cancels bid stakes and unlocks reserved allocations instantly if bidder isn't holding the pole position",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auctions"
+                ],
+                "summary": "Retract a non-leading bid position",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bidder Guild UUID",
+                        "name": "X-Guild-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auction UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/guilds": {
+            "get": {
+                "description": "Retrieves all guild profiles present in the ledger system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guilds"
+                ],
+                "summary": "List all registered guilds",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_GuildResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new guild profile with a defined daily spending limit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guilds"
+                ],
+                "summary": "Register a new guild",
+                "parameters": [
+                    {
+                        "description": "Guild payload specs",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.CreateGuildRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/guilds/{id}/wallet": {
+            "get": {
+                "description": "Retrieves financial metrics including total balance, reserved funds, and liquid available gold",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guilds"
+                ],
+                "summary": "Fetch guild wallet summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Guild UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.WalletSummaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/guilds/{id}/wallet/deposit": {
+            "post": {
+                "description": "Increments a specific guild's gold balance ledger sequence",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guilds"
+                ],
+                "summary": "Deposit gold into guild wallet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Guild UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Deposit amount parameters",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.DepositGoldRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/items": {
+            "get": {
+                "description": "Fetches currently unpurchased inventory orders with optional filtering by class tier type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "List all available catalog items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by type (common, rare, legendary)",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_ItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Mints a trading asset into the store. Common/Rare require fixed list prices.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "List a new item for sale",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Owner Guild UUID",
+                        "name": "X-Guild-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Item metadata specs",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.CreateItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/items/{id}": {
+            "get": {
+                "description": "Retrieves individual asset evaluation logs by its primary identifier key",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "items"
+                ],
+                "summary": "Get item profile details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/items/{id}/buy": {
+            "post": {
+                "description": "Triggers instant direct transaction fulfillment loop logic for Common or Rare asset categories",
+                "tags": [
+                    "items"
+                ],
+                "summary": "Purchase item directly (Limit Order)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Buyer Guild UUID",
+                        "name": "X-Guild-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Item UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_kiarashAlizadeh_herotech_internal_dto.AuctionResponse": {
+            "type": "object",
+            "properties": {
+                "ends_at": {
+                    "type": "string"
+                },
+                "highest_bid": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "item_id": {
+                    "type": "string"
+                },
+                "seller_id": {
+                    "type": "string"
+                },
+                "start_price": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "winner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.CreateAuctionRequest": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "description": "Duration in hours",
+                    "type": "integer"
+                },
+                "item_id": {
+                    "type": "string"
+                },
+                "start_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.CreateGuildRequest": {
+            "type": "object",
+            "properties": {
+                "daily_limit": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.CreateItemRequest": {
+            "type": "object",
+            "properties": {
+                "list_price": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.DepositGoldRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "daily_limit": {
+                    "type": "integer"
+                },
+                "gold_balance": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse": {
+            "type": "object",
+            "properties": {
+                "base_price": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "list_price": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_AuctionResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.AuctionResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginationMeta"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_GuildResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.GuildResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginationMeta"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.PaginatedResponse-github_com_kiarashAlizadeh_herotech_internal_dto_ItemResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.ItemResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/github_com_kiarashAlizadeh_herotech_internal_dto.PaginationMeta"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.PaginationMeta": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_items": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.PlaceBidRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_kiarashAlizadeh_herotech_internal_dto.WalletSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "available_balance": {
+                    "type": "integer"
+                },
+                "reserved_amount": {
+                    "type": "integer"
+                },
+                "total_balance": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}
