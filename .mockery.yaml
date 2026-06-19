@@ -1,0 +1,10 @@
+dir: internal
+recursive: true
+name: "^(AuctionRepository|GuildRepository|ItemRepository|AuctionService|GuildService|ItemService)$"
+output: internal/mocks
+outpkg: mocks
+case: underscore
+with-expecter: true
+disable-version-string: true
+resolve-type-alias: false
+issue-845-fix: true

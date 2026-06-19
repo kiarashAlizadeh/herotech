@@ -81,3 +81,31 @@ func ToDomainGuild(g sqlc.Guild) *domain.Guild {
 		UpdatedAt:   g.UpdatedAt.Time,
 	}
 }
+
+func ToDomainItem(i sqlc.Item) *domain.Item {
+	return &domain.Item{
+		ID:        i.ID,
+		Name:      i.Name,
+		Type:      domain.ItemType(i.Type),
+		Status:    domain.ItemStatus(i.Status),
+		OwnerID:   i.OwnerID,
+		BasePrice: i.BasePrice,
+		ListPrice: Int8ToPtr(i.ListPrice),
+		CreatedAt: i.CreatedAt.Time,
+		UpdatedAt: i.UpdatedAt.Time,
+	}
+}
+
+func ToDomainAuction(a sqlc.Auction) *domain.Auction {
+	return &domain.Auction{
+		ID:         a.ID,
+		ItemID:     a.ItemID,
+		SellerID:   a.SellerID,
+		Status:     domain.AuctionStatus(a.Status),
+		StartPrice: a.StartPrice,
+		HighestBid: Int8ToPtr(a.HighestBid),
+		WinnerID:   UUIDToPtr(a.WinnerID),
+		EndsAt:     a.EndsAt.Time,
+		CreatedAt:  a.CreatedAt.Time,
+	}
+}
