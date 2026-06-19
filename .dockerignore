@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+
+# Go binaries and local builds
+main
+tmp/
+/bin/
+
+# Dependencies
+vendor/
+go.sum.tmp
+
+# Local configurations
+.env
+.env.*
+
+# Documentation/Other
+.air.toml
+.pre-commit-config.yaml
+project_structure.txt
+README.md
+
+# IDE / Editor
+.vscode/

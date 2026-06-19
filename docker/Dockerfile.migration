@@ -1,0 +1,8 @@
+# Use the official golang-migrate CLI image
+FROM migrate/migrate:v4.19.1
+
+# Copy migration SQL files directly into the image during build time
+COPY ./internal/db/migrations /migrations
+
+# Set the default entrypoint for the migrate tool
+ENTRYPOINT ["migrate"]

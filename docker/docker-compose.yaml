@@ -1,0 +1,65 @@
+services:
+  # ----------------------------------------------------------------------------
+  # PostgreSQL Database Service
+  # ----------------------------------------------------------------------------
+  db:
+    image: postgres:18.4-alpine3.24
+    container_name: herotech-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    # Healthcheck to ensure Postgres is fully ready to accept connections
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - herotech-network
+  # ----------------------------------------------------------------------------
+  # Ephemeral Migration Service (Runs once and exits)
+  # ----------------------------------------------------------------------------
+  db_migration:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.migration
+    container_name: herotech-migration
+    command:
+      - -path=/migrations
+      - -database=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable
+      - up
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - herotech-network
+  # ----------------------------------------------------------------------------
+  # Main Go Application Service
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.app
+    container_name: herotech-app
+    ports:
+      - "8080:8080"
+    # Wait for migrations to finish completely before starting the app
+    depends_on:
+      db:
+        condition: service_healthy
+      db_migration:
+        condition: service_completed_successfully
+    env_file:
+      - ../.env
+    networks:
+      - herotech-network
+
+volumes:
+  postgres_data:
+
+networks:
+  herotech-network:
+    driver: bridge
