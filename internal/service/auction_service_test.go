@@ -187,7 +187,7 @@ func TestAuctionService_StartAuction(t *testing.T) {
 			name: "wraps repository create failure",
 			req:  dto.CreateAuctionRequest{ItemID: itemID, StartPrice: 1000, Duration: 2},
 			setupMock: func(auctions *mocks.AuctionRepository, items *mocks.ItemRepository) {
-				items.On("On", mock.Anything, itemID).Return(&domain.Item{
+				items.On("GetByID", mock.Anything, itemID).Return(&domain.Item{
 					ID:      itemID,
 					Type:    domain.ItemTypeLegendary,
 					OwnerID: sellerID,
