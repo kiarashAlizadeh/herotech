@@ -1,0 +1,321 @@
+{
+  "info": {
+    "name": "DRAGON MARKET PLACE API (With Auto-JWT)",
+    "description": "Core infrastructure backend for managing Guild Wallets, Item Trading, and Legendary Auctions. Includes automated collection-level Bearer token authentication.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auctions",
+      "item": [
+        {
+          "name": "List active marketplace auctions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auctions?page=1&page_size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["auctions"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Launch a Legendary item auction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Guild-ID",
+                "value": "YOUR_GUILD_UUID",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"duration\": 24,\n  \"item_id\": \"\",\n  \"start_price\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auctions",
+              "host": ["{{baseUrl}}"],
+              "path": ["auctions"]
+            }
+          }
+        },
+        {
+          "name": "Get auction board details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auctions/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["auctions", ":id"],
+              "variable": [{ "key": "id", "value": "AUCTION_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Submit a new competitive bid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Guild-ID",
+                "value": "YOUR_GUILD_UUID",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1050\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auctions/:id/bid",
+              "host": ["{{baseUrl}}"],
+              "path": ["auctions", ":id", "bid"],
+              "variable": [{ "key": "id", "value": "AUCTION_UUID" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Guilds",
+      "item": [
+        {
+          "name": "List all registered guilds",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/guilds?page=1&page_size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["guilds"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register a new guild",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"daily_limit\": 5000,\n  \"name\": \"Guild Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/guilds",
+              "host": ["{{baseUrl}}"],
+              "path": ["guilds"]
+            }
+          }
+        },
+        {
+          "name": "Fetch guild inventory profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/guilds/:id/inventory",
+              "host": ["{{baseUrl}}"],
+              "path": ["guilds", ":id", "inventory"],
+              "variable": [{ "key": "id", "value": "GUILD_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Fetch guild wallet summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/guilds/:id/wallet",
+              "host": ["{{baseUrl}}"],
+              "path": ["guilds", ":id", "wallet"],
+              "variable": [{ "key": "id", "value": "GUILD_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Deposit gold into guild wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/guilds/:id/wallet/deposit",
+              "host": ["{{baseUrl}}"],
+              "path": ["guilds", ":id", "wallet", "deposit"],
+              "variable": [{ "key": "id", "value": "GUILD_UUID" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Items",
+      "item": [
+        {
+          "name": "List all available catalog items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/items?type=common&page=1&page_size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["items"],
+              "query": [
+                { "key": "type", "value": "common" },
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mint a new inventory item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Guild-ID",
+                "value": "YOUR_GUILD_UUID",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"list_price\": 500,\n  \"name\": \"Item Name\",\n  \"type\": \"common\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["items"]
+            }
+          }
+        },
+        {
+          "name": "Get item profile details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/items/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["items", ":id"],
+              "variable": [{ "key": "id", "value": "ITEM_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "Purchase item directly (Limit Order)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Guild-ID",
+                "value": "YOUR_GUILD_UUID",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/items/:id/buy",
+              "host": ["{{baseUrl}}"],
+              "path": ["items", ":id", "buy"],
+              "variable": [{ "key": "id", "value": "ITEM_UUID" }]
+            }
+          }
+        },
+        {
+          "name": "List an item on the marketplace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Guild-ID",
+                "value": "YOUR_GUILD_UUID",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"list_price\": 600\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/items/:id/list",
+              "host": ["{{baseUrl}}"],
+              "path": ["items", ":id", "list"],
+              "variable": [{ "key": "id", "value": "ITEM_UUID" }]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "YOUR_INITIAL_TOKEN_IF_ANY",
+      "type": "string"
+    }
+  ]
+}
