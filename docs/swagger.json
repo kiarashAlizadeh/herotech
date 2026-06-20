@@ -231,52 +231,6 @@
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "Cancels bid stakes and unlocks reserved allocations instantly if bidder isn't holding the pole position",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auctions"
-                ],
-                "summary": "Retract a non-leading bid position",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bidder Guild UUID",
-                        "name": "X-Guild-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Auction UUID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
             }
         },
         "/guilds": {

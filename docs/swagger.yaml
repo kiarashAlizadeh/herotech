@@ -273,38 +273,6 @@ paths:
       tags:
       - auctions
   /auctions/{id}/bid:
-    delete:
-      description: Cancels bid stakes and unlocks reserved allocations instantly if
-        bidder isn't holding the pole position
-      parameters:
-      - description: Bidder Guild UUID
-        in: header
-        name: X-Guild-ID
-        required: true
-        type: string
-      - description: Auction UUID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Retract a non-leading bid position
-      tags:
-      - auctions
     post:
       consumes:
       - application/json

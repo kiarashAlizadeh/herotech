@@ -187,7 +187,7 @@ func TestAuctionService_StartAuction(t *testing.T) {
 			name: "wraps repository create failure",
 			req:  dto.CreateAuctionRequest{ItemID: itemID, StartPrice: 1000, Duration: 2},
 			setupMock: func(auctions *mocks.AuctionRepository, items *mocks.ItemRepository) {
-				items.On("GetByID", mock.Anything, itemID).Return(&domain.Item{
+				items.On("On", mock.Anything, itemID).Return(&domain.Item{
 					ID:      itemID,
 					Type:    domain.ItemTypeLegendary,
 					OwnerID: sellerID,
@@ -299,89 +299,6 @@ func TestAuctionService_GetAuction(t *testing.T) {
 			}
 			require.NoError(t, err)
 			assert.Equal(t, tt.id, res.ID)
-		})
-	}
-}
-
-func TestAuctionService_CancelBid(t *testing.T) {
-	auctionID := uuid.New()
-	bidderID := uuid.New()
-
-	tests := []struct {
-		name      string
-		auctionID uuid.UUID
-		bidderID  uuid.UUID
-		setupMock func(*mocks.AuctionRepository)
-		wantErr   error
-	}{
-		{
-			name:      "rejects nil auction id",
-			auctionID: uuid.Nil,
-			bidderID:  bidderID,
-			wantErr:   ErrInvalidAuctionID,
-		},
-		{
-			name:      "rejects nil bidder id",
-			auctionID: auctionID,
-			bidderID:  uuid.Nil,
-			wantErr:   ErrInvalidGuildID,
-		},
-		{
-			name:      "maps retract leading bid",
-			auctionID: auctionID,
-			bidderID:  bidderID,
-			setupMock: func(repo *mocks.AuctionRepository) {
-				repo.On("CancelBidTransaction", mock.Anything, auctionID, bidderID).Return(repository.ErrRetractLeadingBid).Once()
-			},
-			wantErr: ErrRetractLeadingBid,
-		},
-		{
-			name:      "maps active bid not found",
-			auctionID: auctionID,
-			bidderID:  bidderID,
-			setupMock: func(repo *mocks.AuctionRepository) {
-				repo.On("CancelBidTransaction", mock.Anything, auctionID, bidderID).Return(repository.ErrActiveBidNotFound).Once()
-			},
-			wantErr: ErrActiveBidNotFound,
-		},
-		{
-			name:      "returns internal error",
-			auctionID: auctionID,
-			bidderID:  bidderID,
-			setupMock: func(repo *mocks.AuctionRepository) {
-				repo.On("CancelBidTransaction", mock.Anything, auctionID, bidderID).Return(errors.New("db down")).Once()
-			},
-		},
-		{
-			name:      "cancels bid",
-			auctionID: auctionID,
-			bidderID:  bidderID,
-			setupMock: func(repo *mocks.AuctionRepository) {
-				repo.On("CancelBidTransaction", mock.Anything, auctionID, bidderID).Return(nil).Once()
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			repo := mocks.NewAuctionRepository(t)
-			if tt.setupMock != nil {
-				tt.setupMock(repo)
-			}
-
-			err := NewAuctionService(repo, nil).CancelBid(context.Background(), tt.auctionID, tt.bidderID)
-
-			if tt.wantErr != nil {
-				require.Error(t, err)
-				assert.ErrorIs(t, err, tt.wantErr)
-				return
-			}
-			if tt.name == "returns internal error" {
-				require.Error(t, err)
-				assert.NotErrorIs(t, err, ErrActiveBidNotFound)
-				return
-			}
-			assert.NoError(t, err)
 		})
 	}
 }

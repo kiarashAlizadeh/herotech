@@ -24,54 +24,6 @@ func (_m *AuctionService) EXPECT() *AuctionService_Expecter {
 	return &AuctionService_Expecter{mock: &_m.Mock}
 }
 
-// CancelBid provides a mock function with given fields: ctx, auctionID, bidderID
-func (_m *AuctionService) CancelBid(ctx context.Context, auctionID uuid.UUID, bidderID uuid.UUID) error {
-	ret := _m.Called(ctx, auctionID, bidderID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CancelBid")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
-		r0 = rf(ctx, auctionID, bidderID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// AuctionService_CancelBid_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CancelBid'
-type AuctionService_CancelBid_Call struct {
-	*mock.Call
-}
-
-// CancelBid is a helper method to define mock.On call
-//   - ctx context.Context
-//   - auctionID uuid.UUID
-//   - bidderID uuid.UUID
-func (_e *AuctionService_Expecter) CancelBid(ctx interface{}, auctionID interface{}, bidderID interface{}) *AuctionService_CancelBid_Call {
-	return &AuctionService_CancelBid_Call{Call: _e.mock.On("CancelBid", ctx, auctionID, bidderID)}
-}
-
-func (_c *AuctionService_CancelBid_Call) Run(run func(ctx context.Context, auctionID uuid.UUID, bidderID uuid.UUID)) *AuctionService_CancelBid_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(uuid.UUID))
-	})
-	return _c
-}
-
-func (_c *AuctionService_CancelBid_Call) Return(_a0 error) *AuctionService_CancelBid_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *AuctionService_CancelBid_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) error) *AuctionService_CancelBid_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetAuction provides a mock function with given fields: ctx, id
 func (_m *AuctionService) GetAuction(ctx context.Context, id uuid.UUID) (*dto.AuctionResponse, error) {
 	ret := _m.Called(ctx, id)

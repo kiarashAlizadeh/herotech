@@ -12,6 +12,5 @@ func RegisterAuctionRoutes(pathV1 *gin.RouterGroup, auctionHandler *handler.Auct
 		auctions.GET("", auctionHandler.ListActiveAuctions)
 		auctions.GET("/:id", auctionHandler.GetAuction)
 		auctions.POST("/:id/bid", auctionHandler.PlaceBid)
-		auctions.DELETE("/:id/bid", auctionHandler.CancelBid) // Clean contextual deletion endpoint
 	}
 }

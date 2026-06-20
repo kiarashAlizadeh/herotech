@@ -44,7 +44,7 @@ func TestItemService_CreateItem(t *testing.T) {
 			wantErr: ErrBlankItemName,
 		},
 		{
-			name:    "rejects invalid item type", 
+			name:    "rejects invalid item type",
 			req:     dto.CreateItemRequest{Name: "Excalibur", Type: "epic"},
 			oracle:  stubPriceOracle{price: 1000},
 			wantErr: ErrInvalidItemType,

@@ -19,7 +19,6 @@ type AuctionService interface {
 	GetAuction(ctx context.Context, id uuid.UUID) (*dto.AuctionResponse, error)
 	ListActiveAuctions(ctx context.Context, req dto.PaginationRequest) (*dto.PaginatedResponse[dto.AuctionResponse], error)
 	PlaceBid(ctx context.Context, auctionID, bidderID uuid.UUID, req dto.PlaceBidRequest) error
-	CancelBid(ctx context.Context, auctionID, bidderID uuid.UUID) error
 }
 
 type auctionService struct {
@@ -183,28 +182,6 @@ func (s *auctionService) PlaceBid(ctx context.Context, auctionID, bidderID uuid.
 			return ErrAlreadyHighestBidder
 		}
 		return fmt.Errorf("failed to complete bid placement transaction: %w", err)
-	}
-	return nil
-}
-
-func (s *auctionService) CancelBid(ctx context.Context, auctionID, bidderID uuid.UUID) error {
-	if auctionID == uuid.Nil {
-		return ErrInvalidAuctionID
-	}
-	if bidderID == uuid.Nil {
-		return ErrInvalidGuildID
-	}
-	if err := s.auctionRepo.CancelBidTransaction(ctx, auctionID, bidderID); err != nil {
-		if errors.Is(err, repository.ErrRetractLeadingBid) {
-			return ErrRetractLeadingBid
-		}
-		if errors.Is(err, repository.ErrActiveBidNotFound) {
-			return ErrActiveBidNotFound
-		}
-		if errors.Is(err, repository.ErrAuctionNotFound) {
-			return ErrAuctionNotFound
-		}
-		return fmt.Errorf("failed to cancel bid transaction: %w", err)
 	}
 	return nil
 }
